@@ -13,11 +13,16 @@ export default class ApiStack extends sst.Stack {
 
     const authorizer = new sst.Function(this, "AuthorizerFn", {
       handler: "src/authorizer.main",
+      environment: {
+        JWKS_URI: process.env.JWKS_URI,
+        AUDIENCE: process.env.AUDIENCE,
+        TOKEN_ISSUER: process.env.TOKEN_ISSUER,
+      },
     });
 
     // Create the API
     this.api = new sst.Api(this, "Api", {
-      defaultAuthorizationType: sst.ApiAuthorizationType.CUSTOM,
+      defaultAuthorizationType: sst.ApiAuthorizationType.JWT,
       defaultAuthorizer: new apigAuthorizers.HttpLambdaAuthorizer("Authorizer", authorizer, {
         authorizerName: "LambdaAuthorizer",
         resultsCacheTtl: Duration.seconds(0),
